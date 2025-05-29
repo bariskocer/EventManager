@@ -1,112 +1,95 @@
+// src/http.js
 import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient();
 
-export async function fetchEvents({ signal, searchTerm }) {
-  console.log(searchTerm);
-  let url = 'http://localhost:3000/events';
 
-  if (searchTerm) {
-    url += '?search=' + searchTerm;
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:3000';
+
+function buildUrl(path, params) {
+  let url = `${API_BASE}${path}`;
+  if (params) {
+    const qs = new URLSearchParams(params).toString();
+    url += `?${qs}`;
   }
+  return url;
+}
 
-  const response = await fetch(url, { signal: signal });
-
-  if (!response.ok) {
+export async function fetchEvents({ signal, searchTerm }) {
+  const url = buildUrl('/events', searchTerm ? { search: searchTerm } : null);
+  const res = await fetch(url, { signal });
+  if (!res.ok) {
     const error = new Error('An error occurred while fetching the events');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  const { events } = await response.json();
-
+  const { events } = await res.json();
   return events;
 }
 
-
 export async function createNewEvent(eventData) {
-  const response = await fetch(`http://localhost:3000/events`, {
+  const res = await fetch(buildUrl('/events'), {
     method: 'POST',
     body: JSON.stringify(eventData),
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
-
-  if (!response.ok) {
+  if (!res.ok) {
     const error = new Error('An error occurred while creating the event');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  const { event } = await response.json();
-
+  const { event } = await res.json();
   return event;
 }
 
 export async function fetchSelectableImages({ signal }) {
-  const response = await fetch(`http://localhost:3000/events/images`, { signal });
-
-  if (!response.ok) {
+  const res = await fetch(buildUrl('/events/images'), { signal });
+  if (!res.ok) {
     const error = new Error('An error occurred while fetching the images');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  const { images } = await response.json();
-
+  const { images } = await res.json();
   return images;
 }
 
 export async function fetchEvent({ id, signal }) {
-  const response = await fetch(`http://localhost:3000/events/${id}`, { signal });
-
-  if (!response.ok) {
+  const res = await fetch(buildUrl(`/events/${id}`), { signal });
+  if (!res.ok) {
     const error = new Error('An error occurred while fetching the event');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  const { event } = await response.json();
-
+  const { event } = await res.json();
   return event;
 }
 
-
 export async function deleteEvent({ id }) {
-  const response = await fetch(`http://localhost:3000/events/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
+  const res = await fetch(buildUrl(`/events/${id}`), { method: 'DELETE' });
+  if (!res.ok) {
     const error = new Error('An error occurred while deleting the event');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  return response.json();
+  return res.json();
 }
 
 export async function updateEvent({ id, event }) {
-  const response = await fetch(`http://localhost:3000/events/${id}`, {
+  const res = await fetch(buildUrl(`/events/${id}`), {
     method: 'PUT',
     body: JSON.stringify({ event }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
-
-  if (!response.ok) {
+  if (!res.ok) {
     const error = new Error('An error occurred while updating the event');
-    error.code = response.status;
-    error.info = await response.json();
+    error.code = res.status;
+    error.info = await res.json();
     throw error;
   }
-
-  return response.json();
+  return res.json();
 }
