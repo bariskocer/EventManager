@@ -3,8 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient();
 
-
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 function buildUrl(path, params) {
   let url = `${API_BASE}${path}`;
@@ -69,7 +68,9 @@ export async function fetchEvent({ id, signal }) {
 }
 
 export async function deleteEvent({ id }) {
-  const res = await fetch(buildUrl(`/events/${id}`), { method: 'DELETE' });
+  const res = await fetch(buildUrl(`/events/${id}`), {
+    method: 'DELETE',
+  });
   if (!res.ok) {
     const error = new Error('An error occurred while deleting the event');
     error.code = res.status;
