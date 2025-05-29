@@ -3,7 +3,9 @@ import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient();
 
+
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+
 
 function buildUrl(path, params) {
   let url = `${API_BASE}${path}`;
