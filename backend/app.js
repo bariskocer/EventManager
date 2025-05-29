@@ -49,14 +49,23 @@ app.get("/events", async (req, res) => {
 });
 
 app.get("/events/images", async (req, res) => {
-  const imagesFileContent = await fs.readFile("./data/images.json", "utf-8");
-  const filenames = JSON.parse(imagesFileContent).images;
+  try {
+    const fileContent = await fs.readFile("./data/images.json", "utf-8");
 
-  const origin = `${req.protocol}://${req.get("host")}`;
+    const items = JSON.parse(fileContent);
 
-  const urls = filenames.map((name) => `${origin}/${name}`);
+    const origin = `${req.protocol}://${req.get("host")}`;
 
-  res.json({ images: urls });
+    const images = items.map(({ path, caption }) => ({
+      url: `${origin}/${path}`,
+      caption,
+    }));
+
+    res.json({ images });
+  } catch (err) {
+    console.error("Error in /events/images:", err);
+    res.status(500).json({ error: "Could not load images" });
+  }
 });
 
 app.get("/events/:id", async (req, res) => {
