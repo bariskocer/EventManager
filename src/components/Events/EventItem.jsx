@@ -1,14 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { API_BASE } from "../../util/http";
 
 export default function EventItem({ event }) {
-  const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
+
+  const imageUrl = event.image.startsWith("/")
+    ? `${API_BASE}${event.image}`
+    : `${API_BASE}/${event.image}`;
+
   return (
     <article className="event-item">
-      <img src={`http://localhost:3000/${event.image}`} alt={event.title} />
+      <img src={imageUrl} alt={event.title} className="event-item-image" />
       <div className="event-item-content">
         <div>
           <h2>{event.title}</h2>
