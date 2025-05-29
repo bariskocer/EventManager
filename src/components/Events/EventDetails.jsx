@@ -1,15 +1,24 @@
 import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
-
 import Header from "../Header.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { deleteEvent, fetchEvent, queryClient } from "../../util/http.js";
+import {
+  deleteEvent,
+  fetchEvent,
+  queryClient,
+  API_BASE,
+} from "../../util/http.js";
 import ErrorBlock from "../UI/ErrorBlock.jsx";
 
 export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data, isPending, isError, error } = useQuery({
+  const {
+    data,
+    isInitialLoading: isPending,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["events", id],
     queryFn: ({ signal }) => fetchEvent({ signal, id }),
   });
@@ -17,16 +26,13 @@ export default function EventDetails() {
   const { mutate } = useMutation({
     mutationFn: deleteEvent,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["events"],
-        refetchType: "none",
-      });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       navigate("/");
     },
   });
 
   const handleDelete = () => {
-    mutate({ id: id });
+    mutate({ id });
   };
 
   let content;
@@ -36,19 +42,26 @@ export default function EventDetails() {
         <p>Fetching event data...</p>
       </div>
     );
+  } else if (isError) {
+    content = (
+      <div id="event-details-content" className="center">
+        <ErrorBlock
+          title="Failed to load event"
+          message={error?.info?.message || "Failed to fetch event"}
+        />
+      </div>
+    );
+  } else if (data) {
+    const imageUrl = data.image.startsWith("/")
+      ? `${API_BASE}${data.image}`
+      : `${API_BASE}/${data.image}`;
 
-    if (isError) {
-      content = (
-        <div id="event-details-content" className="center">
-          <ErrorBlock
-            title="Failed to load event"
-            message={error?.info.message || "Failed to fetch event"}
-          />
-        </div>
-      );
-    }
-  }
-  if (data) {
+    const formattedDate = new Date(data.date).toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
     content = (
       <>
         <header>
@@ -59,11 +72,11 @@ export default function EventDetails() {
           </nav>
         </header>
         <div id="event-details-content">
-          <img src={`http://localhost:3000/${data.image}`} alt={data.title} />
+          <img src={imageUrl} alt={data.title} className="event-detail-image" />
           <div id="event-details-info">
             <div>
               <p id="event-details-location">{data.location}</p>
-              <time dateTime={`Todo-DateT$Todo-Time`}>{data.date}</time>
+              <time dateTime={data.date}>{formattedDate}</time>
             </div>
             <p id="event-details-description">{data.description}</p>
           </div>
@@ -71,6 +84,7 @@ export default function EventDetails() {
       </>
     );
   }
+
   return (
     <>
       <Outlet />
