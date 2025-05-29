@@ -1,4 +1,4 @@
-import { API_BASE } from "../http";
+import { API_BASE } from "../util/http";
 
 export default function ImagePicker({ images, selectedImage, onSelect }) {
   return (
