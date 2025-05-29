@@ -1,11 +1,10 @@
 // src/http.js
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient();
 
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
-
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+console.log("API_BASE:", API_BASE);
 
 function buildUrl(path, params) {
   let url = `${API_BASE}${path}`;
@@ -17,10 +16,10 @@ function buildUrl(path, params) {
 }
 
 export async function fetchEvents({ signal, searchTerm }) {
-  const url = buildUrl('/events', searchTerm ? { search: searchTerm } : null);
+  const url = buildUrl("/events", searchTerm ? { search: searchTerm } : null);
   const res = await fetch(url, { signal });
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the events');
+    const error = new Error("An error occurred while fetching the events");
     error.code = res.status;
     error.info = await res.json();
     throw error;
@@ -30,13 +29,13 @@ export async function fetchEvents({ signal, searchTerm }) {
 }
 
 export async function createNewEvent(eventData) {
-  const res = await fetch(buildUrl('/events'), {
-    method: 'POST',
+  const res = await fetch(buildUrl("/events"), {
+    method: "POST",
     body: JSON.stringify(eventData),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
-    const error = new Error('An error occurred while creating the event');
+    const error = new Error("An error occurred while creating the event");
     error.code = res.status;
     error.info = await res.json();
     throw error;
@@ -46,9 +45,9 @@ export async function createNewEvent(eventData) {
 }
 
 export async function fetchSelectableImages({ signal }) {
-  const res = await fetch(buildUrl('/events/images'), { signal });
+  const res = await fetch(buildUrl("/events/images"), { signal });
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the images');
+    const error = new Error("An error occurred while fetching the images");
     error.code = res.status;
     error.info = await res.json();
     throw error;
@@ -60,7 +59,7 @@ export async function fetchSelectableImages({ signal }) {
 export async function fetchEvent({ id, signal }) {
   const res = await fetch(buildUrl(`/events/${id}`), { signal });
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the event');
+    const error = new Error("An error occurred while fetching the event");
     error.code = res.status;
     error.info = await res.json();
     throw error;
@@ -71,10 +70,10 @@ export async function fetchEvent({ id, signal }) {
 
 export async function deleteEvent({ id }) {
   const res = await fetch(buildUrl(`/events/${id}`), {
-    method: 'DELETE',
+    method: "DELETE",
   });
   if (!res.ok) {
-    const error = new Error('An error occurred while deleting the event');
+    const error = new Error("An error occurred while deleting the event");
     error.code = res.status;
     error.info = await res.json();
     throw error;
@@ -84,12 +83,12 @@ export async function deleteEvent({ id }) {
 
 export async function updateEvent({ id, event }) {
   const res = await fetch(buildUrl(`/events/${id}`), {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify({ event }),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
-    const error = new Error('An error occurred while updating the event');
+    const error = new Error("An error occurred while updating the event");
     error.code = res.status;
     error.info = await res.json();
     throw error;
